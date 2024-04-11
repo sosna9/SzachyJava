@@ -1,7 +1,7 @@
 package Pieces;
 
 public class Bishop extends Piece {
-    public Bishop(Color color) {
+    public Bishop(PlayerColor color) {
         super(color);
     }
 

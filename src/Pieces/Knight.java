@@ -1,7 +1,7 @@
 package Pieces;
 
 public class Knight extends Piece {
-    public Knight(Color color) {
+    public Knight(PlayerColor color) {
         super(color);
     }
 

@@ -5,12 +5,8 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Stage;
 import Pieces.*;
+import GameElems.*;
 
-import javafx.event.EventHandler;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.paint.Color;
-
-import java.io.InputStream;
 import javafx.scene.layout.StackPane;
 //import javax.swing.*;
 
@@ -26,8 +22,8 @@ public class ChessGame extends Application {
     public void start(Stage primaryStage) {
         // Initialize the game
         Board board = new Board();
-        Player player1 = new Player(Piece.Color.WHITE);
-        Player player2 = new Player(Piece.Color.BLACK);
+        Player player1 = new Player(PlayerColor.WHITE);
+        Player player2 = new Player(PlayerColor.BLACK);
         Game game = new Game(player1, player2, board);
 
         // Initialize the GUI
@@ -56,56 +52,50 @@ class Game {
     }
 }
 
-class Player {
-    private Piece.Color color;
-    public Player(Piece.Color color) {
-        this.color = color;
-    }
-    // Add methods for player actions here
-}
 
-class Board {
-    private Piece[][] squares;
 
-    public Board() {
-        squares = new Piece[8][8];
-        initializePieces();
-    }
-
-    private void initializePieces() {
-        // Initialize pawns
-        for (int i = 0; i < 8; i++) {
-            squares[1][i] = new Pawn(Piece.Color.WHITE);
-            squares[6][i] = new Pawn(Piece.Color.BLACK);
-        }
-
-        // Initialize pieces for white player
-        squares[0][0] = new Rook(Piece.Color.WHITE);
-        squares[0][1] = new Knight(Piece.Color.WHITE);
-        squares[0][2] = new Bishop(Piece.Color.WHITE);
-        squares[0][3] = new Queen(Piece.Color.WHITE);
-        squares[0][4] = new King(Piece.Color.WHITE);
-        squares[0][5] = new Bishop(Piece.Color.WHITE);
-        squares[0][6] = new Knight(Piece.Color.WHITE);
-        squares[0][7] = new Rook(Piece.Color.WHITE);
-
-        // Initialize pieces for black player
-        squares[7][0] = new Rook(Piece.Color.BLACK);
-        squares[7][1] = new Knight(Piece.Color.BLACK);
-        squares[7][2] = new Bishop(Piece.Color.BLACK);
-        squares[7][3] = new Queen(Piece.Color.BLACK);
-        squares[7][4] = new King(Piece.Color.BLACK);
-        squares[7][5] = new Bishop(Piece.Color.BLACK);
-        squares[7][6] = new Knight(Piece.Color.BLACK);
-        squares[7][7] = new Rook(Piece.Color.BLACK);
-        System.out.println(squares[1][1].getClass() +" " + squares[1][1].getColor());
-    }
-
-    public Piece getPiece(int row, int col) {
-        return squares[row][col];
-    }
-
-}
+//class Board {
+//    private Piece[][] squares;
+//
+//    public Board() {
+//        squares = new Piece[8][8];
+//        initializePieces();
+//    }
+//
+//    private void initializePieces() {
+//        // Initialize pawns
+//        for (int i = 0; i < 8; i++) {
+//            squares[1][i] = new Pawn(PlayerColor.WHITE);
+//            squares[6][i] = new Pawn(PlayerColor.BLACK);
+//        }
+//
+//        // Initialize pieces for white player
+//        squares[0][0] = new Rook(PlayerColor.WHITE);
+//        squares[0][1] = new Knight(PlayerColor.WHITE);
+//        squares[0][2] = new Bishop(PlayerColor.WHITE);
+//        squares[0][3] = new Queen(PlayerColor.WHITE);
+//        squares[0][4] = new King(PlayerColor.WHITE);
+//        squares[0][5] = new Bishop(PlayerColor.WHITE);
+//        squares[0][6] = new Knight(PlayerColor.WHITE);
+//        squares[0][7] = new Rook(PlayerColor.WHITE);
+//
+//        // Initialize pieces for black player
+//        squares[7][0] = new Rook(PlayerColor.BLACK);
+//        squares[7][1] = new Knight(PlayerColor.BLACK);
+//        squares[7][2] = new Bishop(PlayerColor.BLACK);
+//        squares[7][3] = new Queen(PlayerColor.BLACK);
+//        squares[7][4] = new King(PlayerColor.BLACK);
+//        squares[7][5] = new Bishop(PlayerColor.BLACK);
+//        squares[7][6] = new Knight(PlayerColor.BLACK);
+//        squares[7][7] = new Rook(PlayerColor.BLACK);
+//        System.out.println(squares[1][1].getClass() +" " + squares[1][1].getColor());
+//    }
+//
+//    public Piece getPiece(int row, int col) {
+//        return squares[row][col];
+//    }
+//
+//}
 
 
 // Define other piece classes similarly (e.g., Rook, Knight, Bishop, Queen, King)
@@ -152,7 +142,7 @@ class ChessGUI extends GridPane {
     }
 
     private String getImageUrlForPiece(Piece piece) {
-        String color = (piece.getColor() == Piece.Color.WHITE) ? "White" : "Black";
+        String color = (piece.getColor() == PlayerColor.WHITE) ? "White" : "Black";
         String type = piece.getClass().getSimpleName();
         return "obraski/" + color + type + ".png";
     }
