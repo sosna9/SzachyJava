@@ -19,7 +19,6 @@ public class Pawn extends Piece {
             }
             // First move, pawn can move two squares forward
             if (!this.hasMoved() && startX + 2 * direction == endX && board[startX + direction][endY] == null) {
-                System.out.println("no i not has moved" + this.hasMoved() );
                 return true;
             }
         }

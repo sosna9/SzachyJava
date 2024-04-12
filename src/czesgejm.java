@@ -20,20 +20,20 @@ public class czesgejm extends JFrame {
     public czesgejm() {
         setTitle("Chess Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(600, 600);
+        setSize(1000, 600);
 
-        chessboardPanel = new JPanel(new GridLayout(8, 8));
+        chessboardPanel = new JPanel(new GridLayout(9, 9));
         squares = new JButton[8][8];
 
         // Initialize the menu panel
-        menuPanel = new JPanel(new GridLayout(10, 1));
-        menuPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
+        menuPanel = createMenuPanel();
+        add(menuPanel, BorderLayout.EAST);
 
         // Initialize the move list panel
         moveListPanel = new JPanel(new GridLayout(1, 1));
         moveListPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-        // Initialize the move list
+        //Initialize the move list
         DefaultListModel<String> moveListModel = new DefaultListModel<>();
         moveList = new JList<>(moveListModel);
         moveListPanel.add(new JScrollPane(moveList));
@@ -44,9 +44,22 @@ public class czesgejm extends JFrame {
         System.out.println(board.getPieces()[1][1]);
 
 
+        JLabel space = new JLabel(String.valueOf((char)(' ')));
+        space.setHorizontalAlignment(SwingConstants.CENTER);
+        chessboardPanel.add(space);
+        for (int i = 0; i < 8; i++) {
+            JLabel label = new JLabel(String.valueOf((char)('A' + i)));
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            chessboardPanel.add(label);
+        }
 
-        // Initialize the chessboard squares
+        // Add squares with buttons
         for (int row = 0; row < 8; row++) {
+            // Add row number
+            JLabel rowLabel = new JLabel(String.valueOf(8 - row));
+            rowLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            chessboardPanel.add(rowLabel);
+
             for (int col = 0; col < 8; col++) {
                 JButton square = new JButton();
                 square.setPreferredSize(new Dimension(75, 75));
@@ -57,12 +70,12 @@ public class czesgejm extends JFrame {
             }
         }
 
-
         // Initialize the chess pieces
         //initializePieces();
 
         // Add the chessboard panel to the frame
         add(chessboardPanel);
+        add(moveListPanel,  BorderLayout.WEST);
         updateChessboard(board);
     }
 
@@ -101,13 +114,12 @@ public class czesgejm extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println(e.getSource());
+            //System.out.println(e.getSource());
             JButton clickedSquare = (JButton) e.getSource();
             if (selectedSquare == null) {
                 if (board.pieces[row][col] != null && board.pieces[row][col].getColor() == currentPlayer.getColor()) {
                     selectedSquare = clickedSquare;
                     selectedSquare.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
-                    System.out.println("has moved po kliku? " + board.pieces[row][col].hasMoved());
                 }
             } else {
                 int selectedRow = -1;
@@ -126,12 +138,10 @@ public class czesgejm extends JFrame {
                 System.out.println("selectedRow:" + selectedRow);
                 System.out.println("selectedCol:" + selectedCol);
                 System.out.println("row:" +  row + "col:"+  col);
-                System.out.println("has moved przed ruchem? " + board.pieces[selectedRow][selectedCol].hasMoved());
                 if(board.pieces[selectedRow][selectedCol].isValidMove(selectedRow, selectedCol, row, col, board.pieces)) {
                     board.pieces[row][col] = board.pieces[selectedRow][selectedCol];
                     board.pieces[row][col].setHasMoved(true);
                     board.pieces[selectedRow][selectedCol] = null;
-                    System.out.println("has moved po ruchu? " + board.pieces[row][col].hasMoved());
                     currentPlayer = (currentPlayer.getColor() == PlayerColor.WHITE ? new Player(PlayerColor.BLACK) : new Player(PlayerColor.WHITE));
                 }
 
@@ -147,6 +157,34 @@ public class czesgejm extends JFrame {
             }
         }
     }
+
+
+    private JPanel createMenuPanel() {
+        JPanel panel = new JPanel(new GridLayout(10, 2));
+        panel.setBorder(new EmptyBorder(10, 10, 10, 10));
+
+        // Add menu items
+        JMenuItem startTimerItem = new JMenuItem("Start Timer");
+        JMenuItem stopTimerItem = new JMenuItem("Stop Timer");
+        JMenuItem startGameItem = new JMenuItem("Start Game");
+        JMenuItem loadGameItem = new JMenuItem("Load Game");
+        JMenuItem saveGameItem = new JMenuItem("Save Game");
+
+        JMenu timerMenu = new JMenu("Timer");
+        timerMenu.add(startTimerItem);
+        timerMenu.add(stopTimerItem);
+
+        JMenuBar menuBar = new JMenuBar();
+        menuBar.add(timerMenu);
+        menuBar.add(startGameItem);
+        menuBar.add(loadGameItem);
+        menuBar.add(saveGameItem);
+
+        panel.add(menuBar);
+
+        return panel;
+    }
+
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
