@@ -170,6 +170,7 @@ public class czesgejm extends JFrame {
         JMenuItem loadGameItem = new JMenuItem("Load Game");
         JMenuItem saveGameItem = new JMenuItem("Save Game");
 
+
         JMenu timerMenu = new JMenu("Timer");
         timerMenu.add(startTimerItem);
         timerMenu.add(stopTimerItem);
