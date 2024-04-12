@@ -3,7 +3,7 @@ package Pieces;
 public class King extends Piece {
     private boolean hasMoved; // Keep track if the king has moved
     public King(PlayerColor color) {
-        super(color);
+        super(color, 'K');
         this.hasMoved = false;
     }
 

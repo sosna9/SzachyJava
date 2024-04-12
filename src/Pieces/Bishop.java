@@ -2,7 +2,7 @@ package Pieces;
 
 public class Bishop extends Piece {
     public Bishop(PlayerColor color) {
-        super(color);
+        super(color, 'B');
     }
 
     @Override

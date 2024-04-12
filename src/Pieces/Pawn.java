@@ -3,7 +3,7 @@ package Pieces;
 public class Pawn extends Piece {
 
     public Pawn(PlayerColor color) {
-        super(color);
+        super(color, 'P');
     }
 
 
@@ -18,16 +18,12 @@ public class Pawn extends Piece {
                 return true;
             }
             // First move, pawn can move two squares forward
-            if (!this.hasMoved() && startX + 2 * direction == endX && board[startX + direction][endY] == null) {
-                return true;
-            }
+            return !this.hasMoved() && startX + 2 * direction == endX && board[startX + direction][endY] == null;
         }
         // Check if the move is a capture
         else if (Math.abs(startY - endY) == 1 && startX + direction == endX) {
             // Check if there's an opponent's piece to capture
-            if (board[endX][endY] != null && board[endX][endY].getColor() != this.getColor()) {
-                return true;
-            }
+            return board[endX][endY] != null && board[endX][endY].getColor() != this.getColor();
         }
         return false;
     }

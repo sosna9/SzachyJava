@@ -2,7 +2,7 @@ package Pieces;
 
 public class Queen extends Piece {
     public Queen(PlayerColor color) {
-        super(color);
+        super(color, 'Q');
     }
 
     @Override

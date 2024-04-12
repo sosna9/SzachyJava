@@ -2,7 +2,7 @@ package Pieces;
 
 public class Rook extends Piece {
     public Rook(PlayerColor color) {
-        super(color);
+        super(color, 'R');
     }
 
     @Override

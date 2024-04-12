@@ -20,7 +20,7 @@ public class czesgejm extends JFrame {
     public czesgejm() {
         setTitle("Chess Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setSize(1000, 600);
+        setSize(1200, 600);
 
         chessboardPanel = new JPanel(new GridLayout(9, 9));
         squares = new JButton[8][8];
@@ -64,7 +64,7 @@ public class czesgejm extends JFrame {
                 JButton square = new JButton();
                 square.setPreferredSize(new Dimension(75, 75));
                 square.setBackground((row + col) % 2 == 0 ? Color.WHITE : Color.GREEN.darker());
-                square.addActionListener(new SquareClickListener(row, col, board));
+                square.addActionListener(new SquareClickListener(row, col, board, moveListModel));
                 squares[row][col] = square;
                 chessboardPanel.add(square);
             }
@@ -106,15 +106,17 @@ public class czesgejm extends JFrame {
         private int row;
         private int col;
         private Board board;
-        public SquareClickListener(int row, int col, Board board) {
+        private DefaultListModel<String> moveListModel; // Add moveListModel as a member
+
+        public SquareClickListener(int row, int col, Board board, DefaultListModel<String> moveListModel) {
             this.row = row;
             this.col = col;
             this.board = board;
+            this.moveListModel = moveListModel; // Initialize moveListModel
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            //System.out.println(e.getSource());
             JButton clickedSquare = (JButton) e.getSource();
             if (selectedSquare == null) {
                 if (board.pieces[row][col] != null && board.pieces[row][col].getColor() == currentPlayer.getColor()) {
@@ -135,19 +137,33 @@ public class czesgejm extends JFrame {
                     }
                 }
 
-                System.out.println("selectedRow:" + selectedRow);
-                System.out.println("selectedCol:" + selectedCol);
-                System.out.println("row:" +  row + "col:"+  col);
-                if(board.pieces[selectedRow][selectedCol].isValidMove(selectedRow, selectedCol, row, col, board.pieces)) {
+                if (board.pieces[selectedRow][selectedCol].isValidMove(selectedRow, selectedCol, row, col, board.pieces)) {
+                    // Convert coordinates to algebraic notation
+
+                    String endSquare = String.format("%c%d", 'a' + col, 8 - row);
+                    String move = "";
+
+                    // Check for special moves (e.g., castling)
+                    if (board.pieces[selectedRow][selectedCol] instanceof King && Math.abs(selectedCol - col) == 2) {
+                        move = (col > selectedCol) ? "O-O" : "O-O-O";
+                    } else {
+                        // Determine piece symbol
+                        char pieceSymbol = board.pieces[selectedRow][selectedCol].getPieceSymbol();
+                        move = (pieceSymbol == 'P') ? endSquare : pieceSymbol + endSquare;
+                    }
+
+                    // Add move to the move list
+                    moveListModel.addElement(move); // Use moveListModel here
+
+                    // Make the move on the board
                     board.pieces[row][col] = board.pieces[selectedRow][selectedCol];
                     board.pieces[row][col].setHasMoved(true);
                     board.pieces[selectedRow][selectedCol] = null;
-                    currentPlayer = (currentPlayer.getColor() == PlayerColor.WHITE ? new Player(PlayerColor.BLACK) : new Player(PlayerColor.WHITE));
+
+                    // Switch to the next player
+                    currentPlayer = (currentPlayer.getColor() == PlayerColor.WHITE) ?
+                            new Player(PlayerColor.BLACK) : new Player(PlayerColor.WHITE);
                 }
-
-
-                // Move the piece to the clicked square
-
 
                 // Deselect the square
                 selectedSquare.setBorder(null);
@@ -157,6 +173,7 @@ public class czesgejm extends JFrame {
             }
         }
     }
+
 
 
     private JPanel createMenuPanel() {
