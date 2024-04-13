@@ -1,5 +1,6 @@
 package GameElems;
 import Pieces.*;
+import java.util.List;
 
 public class Board {
     private Piece[][] pieces;
@@ -64,6 +65,40 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public boolean isCheckmate(PlayerColor color) {
+        if (!isKingInCheck(color)) {
+            return false;
+        }
+
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                Piece piece = pieces[x][y];
+                if (piece != null && piece.getColor() == color) {
+                    List<int[]> possibleMoves = piece.generatePossibleMoves(x, y, this);
+                    for (int[] move : possibleMoves) {
+                        // Create a copy of the board
+                        Board copiedBoard = new Board();
+                        for (int i = 0; i < 8; i++) {
+                            for (int j = 0; j < 8; j++) {
+                                copiedBoard.setPiece(i, j, this.getPiece(i, j));
+                            }
+                        }
+
+                        // Make the move on the copied board
+                        copiedBoard.setPiece(move[0], move[1], copiedBoard.getPiece(x, y));
+                        copiedBoard.setPiece(x, y, null);
+
+                        // Check if the king is still in check
+                        if (!copiedBoard.isKingInCheck(color)) {
+                            return false;
+                        }
+                    }
+                }
+            }
+        }
+        return true;
     }
 
     public Piece[][] getPieces() {
