@@ -1,45 +1,67 @@
 package Pieces;
-
+import GameElems.Board;
+import java.util.List;
+import java.util.ArrayList;
 public class Rook extends Piece {
     public Rook(PlayerColor color) {
         super(color, 'R');
     }
 
     @Override
-    public boolean isValidMove(int startX, int startY, int endX, int endY, Piece[][] board) {
+    public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
         // Rook can move horizontally or vertically any number of squares
         if (startX == endX || startY == endY) {
             // Check if there are any pieces in the way
             if (startX == endX) { // Vertical move
                 int direction = Integer.compare(endY, startY);
                 for (int y = startY + direction; y != endY; y += direction) {
-                    if (board[startX][y] != null) {
+                    if (board.getPiece(startX,y) != null) {
                         return false;
                     }
                 }
             } else { // Horizontal move
                 int direction = Integer.compare(endX, startX);
                 for (int x = startX + direction; x != endX; x += direction) {
-                    if (board[x][startY] != null) {
+                    if (board.getPiece(x, startY) != null) {
                         return false;
                     }
                 }
             }
             // Check if the end position is occupied by an opponent's piece or is empty
-            return board[endX][endY] == null || board[endX][endY].getColor() != this.getColor();
+            return board.getPiece(endX,endY) == null || board.getPiece(endX,endY).getColor() != this.getColor();
         }
         return false;
     }
 
     @Override
-    public boolean threatensPosition(int x, int y, Piece[][] board) {
+    public boolean threatensPosition(int x, int y, Board board) {
         // The rook threatens a position if it can move to that position
         for (int i = 0; i < 8; i++) {
-            if (isValidMove(x, y, x, i, board) || isValidMove(x, y, i, y, board)) {
+            // Check the row
+            if (i != y && isValidMove(x, y, x, i, board)) {
+                System.out.println("Rook threatens position"+ x + " " + y + " " + i + " " + y);
+                return true;
+            }
+            // Check the column
+            if (i != x && isValidMove(x, y, i, y, board)) {
+                System.out.println("Rook threatens position"+ x + " " + y + " " + i + " " + y);
                 return true;
             }
         }
         return false;
+    }
+
+    @Override
+    public List<int[]> generatePossibleMoves(int startX, int startY, Board board) {
+        List<int[]> possibleMoves = new ArrayList<>();
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if (isValidMove(startX, startY, x, y, board)) {
+                    possibleMoves.add(new int[]{x, y});
+                }
+            }
+        }
+        return possibleMoves;
     }
 }
 

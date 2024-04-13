@@ -1,7 +1,8 @@
 package GameElems;
 import Pieces.*;
+
 public class Board {
-    public Piece[][] pieces;
+    private Piece[][] pieces;
 
     public Board() {
         pieces = new Piece[8][8];
@@ -36,9 +37,39 @@ public class Board {
         pieces[7][7] = new Rook(PlayerColor.BLACK);
     }
 
+    public boolean isKingInCheck(PlayerColor color) {
+        int kingX = -1, kingY = -1;
+        // Find the king of the given color
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                Piece piece = pieces[x][y];
+                if (piece != null && piece.getColor() == color && piece instanceof King) {
+                    kingX = x;
+                    kingY = y;
+                    break;
+                }
+            }
+            if (kingX != -1) {
+                break;
+            }
+        }
+
+        // Check if the king is in check
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                Piece piece = pieces[x][y];
+                if (piece != null && piece.getColor() != color && piece.isValidMove(x, y, kingX, kingY, this)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     public Piece[][] getPieces() {
         return this.pieces;
     }
+
     public Piece getPiece(int row, int col) {
         return pieces[row][col];
     }

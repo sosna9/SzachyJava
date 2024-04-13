@@ -1,5 +1,9 @@
 package Pieces;
-// attribution link to thank author of icons <a href="https://www.flaticon.com/free-icons/crown" title="crown icons">Chess pieces icons created by Stockio - Flaticon</a>
+import GameElems.Board;
+
+import java.util.ArrayList;
+import java.util.List;
+
 abstract public class Piece {
 
 
@@ -7,13 +11,16 @@ abstract public class Piece {
     protected char symbol = ' ';
     private boolean hasMoved = false;
 
-
     public boolean hasMoved() {
         return hasMoved;
+    }
+    public boolean getHasMovedTwo() {
+        return false;
     }
     public void setHasMoved(boolean hasMoved) {
         this.hasMoved = hasMoved;
     }
+
     public char getPieceSymbol(){
         return symbol;
     }
@@ -24,13 +31,46 @@ abstract public class Piece {
         this.symbol = symbol;
     }
 
-    // Abstract method to check if a move is valid for the piece
-    public abstract boolean isValidMove(int startX, int startY, int endX, int endY, Piece[][] board);
+    public abstract List<int[]> generatePossibleMoves(int startX, int startY, Board board);
+
+    public boolean wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board board) {
+        // Create a copy of the board
+        Board copiedBoard = new Board();
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                copiedBoard.setPiece(x, y,  board.getPiece(x,y));;
+            }
+        }
+
+        // Make the move on the copied board
+        copiedBoard.setPiece(endX, endY, copiedBoard.getPiece(startX, startY));
+        copiedBoard.setPiece(startX,startY, null);
+
+        // Find the position of the king on the copied board
+        int kingX = -1, kingY = -1;
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                Piece piece = copiedBoard.getPiece(x,y);
+                if (piece != null && piece.getColor() == this.getColor() && piece instanceof King) {
+                    kingX = x;
+                    kingY = y;
+                    break;
+                }
+            }
+            if (kingX != -1) {
+                break;
+            }
+        }
+
+        // Check if the king is in check on the copied board
+        return copiedBoard.isKingInCheck(color);
+    }
+
+    public abstract boolean isValidMove(int startX, int startY, int endX, int endY, Board board);
 
     public PlayerColor getColor() {
         return color;
     }
 
-    public abstract boolean threatensPosition(int x, int y, Piece[][] board);
-
+    public abstract boolean threatensPosition(int x, int y, Board board);
 }
