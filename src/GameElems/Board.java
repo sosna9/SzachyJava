@@ -3,7 +3,7 @@ import Pieces.*;
 import java.util.List;
 
 public class Board {
-    private final Piece[][] pieces;
+    private Piece[][] pieces;
 
     public Board() {
         pieces = new Piece[8][8];
@@ -72,6 +72,16 @@ public class Board {
             }
         }
         return false;
+    }
+
+    public void flipBoard() {
+        Piece[][] newPieces = new Piece[8][8];
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                newPieces[i][j] = pieces[7 - i][7 - j];
+            }
+        }
+        pieces = newPieces;
     }
 
     public boolean isCheckmate(PlayerColor color) {

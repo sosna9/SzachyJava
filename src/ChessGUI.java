@@ -152,7 +152,7 @@ public class ChessGUI extends JFrame {
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
                 if (board.getPiece(row, col) != null) {
-                    String imagePath = "obraski/" + board.getPiece(row, col).getColor().toString().toLowerCase() +
+                    String imagePath = "obrazki/" + board.getPiece(row, col).getColor().toString().toLowerCase() +
                             board.getPiece(row, col).getClass().getSimpleName() + ".png";
                     ImageIcon icon = new ImageIcon(imagePath);
                     Image image = icon.getImage();
