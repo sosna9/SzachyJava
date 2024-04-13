@@ -19,6 +19,7 @@ public class Pawn extends Piece {
     public void setHasMovedTwo(boolean hasMovedTwo) {
         this.hasMovedTwo = hasMovedTwo;
     }
+
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
         int direction = (getColor() == PlayerColor.WHITE) ? 1 : -1; // Direction of movement depends on pawn's color
@@ -35,7 +36,14 @@ public class Pawn extends Piece {
         // Check if the move is a capture
         else if (Math.abs(startY - endY) == 1 && startX + direction == endX) {
             // Check if there's an opponent's piece to capture
-            return board.getPiece(endX, endY) != null && board.getPiece(endX,endY).getColor() != this.getColor();
+            if (board.getPiece(endX, endY) != null && board.getPiece(endX,endY).getColor() != this.getColor()) {
+                return true;
+            }
+            // Check for en passant
+            else if ((getColor() == PlayerColor.WHITE && startX == 4) || (getColor() == PlayerColor.BLACK && startX == 3)) {
+                Piece adjacentPiece = board.getPiece(startX, startY + endY - startY);
+                return adjacentPiece instanceof Pawn && adjacentPiece.getColor() != getColor() && adjacentPiece.getHasMovedTwo();
+            }
         }
         return false;
     }

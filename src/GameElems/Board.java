@@ -3,14 +3,22 @@ import Pieces.*;
 import java.util.List;
 
 public class Board {
-    private Piece[][] pieces;
+    private final Piece[][] pieces;
 
     public Board() {
         pieces = new Piece[8][8];
         initializePieces();
     }
 
-    private void initializePieces() {
+    public void initializePieces() {
+
+        // Reset the board to nulls
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                pieces[i][j] = null;
+            }
+        }
+
         // Initialize pawns
         for (int i = 0; i < 8; i++) {
             pieces[1][i] = new Pawn(PlayerColor.WHITE);
@@ -54,7 +62,6 @@ public class Board {
                 break;
             }
         }
-
         // Check if the king is in check
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {

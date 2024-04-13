@@ -62,6 +62,11 @@ abstract public class Piece {
             }
         }
 
+        // If the king's position is not found, return false
+        if (kingX == -1 || kingY == -1) {
+            return false;
+        }
+
         // Check if the king is in check on the copied board
         return copiedBoard.isKingInCheck(color);
     }

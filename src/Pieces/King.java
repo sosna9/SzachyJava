@@ -10,6 +10,16 @@ public class King extends Piece {
         this.hasMoved = false;
     }
 
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    // Override setHasMoved to update hasMoved
+    @Override
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
+    }
+
 
     public boolean isInCheck(int x, int y, Board board) {
         for (int i = 0; i < 8; i++) {
@@ -23,6 +33,7 @@ public class King extends Piece {
         return false;
     }
 
+    // In King.java
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
         // Check if the move is valid for a king (can move one square in any direction)
@@ -33,10 +44,16 @@ public class King extends Piece {
         boolean isAdjacentMove = dx <= 1 && dy <= 1 && (board.getPiece(endX, endY)== null || board.getPiece(endX, endY).getColor() != this.getColor());
 
         // Check if the destination square is under attack
-        boolean isUnderAttack = false;
-        isUnderAttack = wouldThisMovePutKingInCheck(startX, startY, endX, endY, board);
-        System.out.println("król byłby pod atakiem" + isUnderAttack);
-        return isAdjacentMove && !isUnderAttack;
+        boolean isUnderAttack = wouldThisMovePutKingInCheck(startX, startY, endX, endY, board);
+
+        // Check for castling
+        boolean isCastlingMove = !hasMoved && dx == 0 && dy == 2 && board.getPiece(startX, startY + dy / 2) == null && board.getPiece(startX, startY + dy) == null;
+        if (isCastlingMove) {
+            Piece rook = board.getPiece(startX, startY + dy / 2 * 3);
+            isCastlingMove = rook instanceof Rook && !rook.hasMoved();
+        }
+
+        return (isAdjacentMove || isCastlingMove) && !isUnderAttack;
     }
 
 

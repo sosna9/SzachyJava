@@ -5,12 +5,14 @@ import java.awt.event.*;
 import Pieces.*;
 import GameElems.*;
 import java.util.List;
+import javax.swing.JFileChooser;
+import java.io.*;
 
 public class ChessGUI extends JFrame {
     private final JPanel chessboardPanel;
     private final JPanel menuPanel;
     private final JPanel moveListPanel;
-    private final JList<String> moveList;
+    private JTextArea moveList;
     private JButton[][] squares;
     private JButton selectedSquare;
     private Player currentPlayer;
@@ -25,9 +27,13 @@ public class ChessGUI extends JFrame {
     private int whiteTime;
     private int blackTime;
 
-    public ChessGUI(Board board, Player currentPlayer) {
+    private Chessgame chessgame;
+
+
+    public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame) { // Modify the constructor to accept a Chessgame instance
         this.board = board;
         this.currentPlayer = currentPlayer;
+        this.chessgame = chessgame; // Initialize the Chessgame instance
 
         setTitle("Chess Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -74,8 +80,12 @@ public class ChessGUI extends JFrame {
         moveListPanel.setPreferredSize(new Dimension(200, getHeight()));
 
         DefaultListModel<String> moveListModel = new DefaultListModel<>();
-        moveList = new JList<>(moveListModel);
-        moveListPanel.add(new JScrollPane(moveList));
+        moveList = new JTextArea(); // Initialize JTextArea
+        moveList.setEditable(false); // Prevent user from editing the text
+        moveList.setLineWrap(true); // Set line wrap to true
+        moveList.setWrapStyleWord(true); // Set word wrap to true
+        moveListPanel.add(moveList); // Add JTextArea to the panel
+
 
         JLabel space = new JLabel(String.valueOf((char)(' ')));
         space.setHorizontalAlignment(SwingConstants.CENTER);
@@ -174,6 +184,7 @@ public class ChessGUI extends JFrame {
             }
         }
 
+
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedSquare = (JButton) e.getSource();
@@ -215,23 +226,53 @@ public class ChessGUI extends JFrame {
                     String endSquare = String.format("%c%d", 'a' + col, 8 - row);
                     String moveStringg = "";
 
+                    // Check for castling
                     if (board.getPiece(selectedRow, selectedCol) instanceof King && Math.abs(selectedCol - col) == 2) {
-                        moveStringg = (col > selectedCol) ? "O-O" : "O-O-O";
-                    } else {
-                        char pieceSymbol = board.getPiece(selectedRow, selectedCol).getPieceSymbol();
-                        if (board.getPiece(row, col) != null) {
-                            moveStringg = (pieceSymbol == 'P') ? startSquare + "x" + endSquare : pieceSymbol + "x" + endSquare;
+                        if (col > selectedCol) {
+                            moveStringg = "O-O"; // Kingside castling
                         } else {
-                            moveStringg = (pieceSymbol == 'P') ? endSquare : pieceSymbol + endSquare;
+                            moveStringg = "O-O-O"; // Queenside castling
+                        }
+                    } else {
+                        // Standard move notation
+                        if (board.getPiece(selectedRow, selectedCol) instanceof Pawn) {
+                            if (board.getPiece(row, col) != null) {
+                                moveStringg = startSquare.charAt(0) + "x" + endSquare; // Pawn capture
+                            } else {
+                                moveStringg = endSquare; // Pawn move
+                            }
+                        } else {
+                            if (board.getPiece(row, col) != null) {
+                                moveStringg = board.getPiece(selectedRow, selectedCol).getPieceSymbol() + "x" + endSquare; // Piece capture
+                            } else {
+                                moveStringg = board.getPiece(selectedRow, selectedCol).getPieceSymbol() + endSquare; // Piece move
+                            }
                         }
                     }
 
                     moveListModel.addElement(moveStringg);
+                    moveList.append(moveStringg + ",  ");
+
+
+                    // Check for castling
+                    if (board.getPiece(selectedRow, selectedCol) instanceof King && Math.abs(selectedCol - col) == 2) {
+                        int rookStartCol = (col > selectedCol) ? 7 : 0;
+                        int rookEndCol = (col > selectedCol) ? 5 : 3;
+                        board.setPiece(row, rookEndCol, board.getPiece(row, rookStartCol));
+                        board.setPiece(row, rookStartCol, null);
+                    }
+
+                    // Check for en passant
+                    if (board.getPiece(selectedRow, selectedCol) instanceof Pawn && Math.abs(selectedRow - row) == 1 && Math.abs(selectedCol - col) == 1 && board.getPiece(row, col) == null) {
+                        int capturedPawnRow = selectedRow;
+                        int capturedPawnCol = col;
+                        board.setPiece(capturedPawnRow, capturedPawnCol, null);
+                    }
 
                     if (board.getPiece(selectedRow, selectedCol) instanceof Pawn && Math.abs(selectedRow - row) == 2) {
                         ((Pawn) board.getPiece(selectedRow, selectedCol)).setHasMovedTwo(true);
                     } else if (board.getPiece(selectedRow, selectedCol) instanceof Pawn) {
-                        ((Pawn) board.getPiece(selectedRow, selectedCol)).setHasMovedTwo(false);
+                        // Add additional logic for Pawn here
                     }
 
                     board.setPiece(row, col, board.getPiece(selectedRow, selectedCol));
@@ -256,12 +297,47 @@ public class ChessGUI extends JFrame {
         JPanel panel = new JPanel(new GridLayout(10, 2));
         panel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
-
         JMenuItem startGameItem = new JMenuItem("Start Game");
         JMenuItem loadGameItem = new JMenuItem("Load Game");
         JMenuItem saveGameItem = new JMenuItem("Save Game");
 
+        startGameItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Reset the board and current player
+                board.initializePieces();
+                currentPlayer = new Player(PlayerColor.WHITE);
+                whiteTime = 1800; // 30 minutes in seconds
+                blackTime = 1800; // 30 minutes in seconds
+                updateTimerLabels();
+                // Update the GUI
+                updateChessboard(board);
+            }
+        });
 
+        saveGameItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Save the game state to a file
+                chessgame.saveGame("savegame.txt"); // Use the Chessgame instance to call saveGame
+            }
+        });
+
+        loadGameItem.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                // Open a file chooser
+                JFileChooser fileChooser = new JFileChooser();
+                int returnValue = fileChooser.showOpenDialog(null);
+
+                // If a file was selected, load the game state from that file
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = fileChooser.getSelectedFile();
+                    chessgame.loadGame(selectedFile.getPath());
+                    updateChessboard(board);
+                }
+            }
+        });
 
         JMenuBar menuBar = new JMenuBar();
 
@@ -272,4 +348,5 @@ public class ChessGUI extends JFrame {
 
         return panel;
     }
+
 }

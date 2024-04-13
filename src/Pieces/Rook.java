@@ -3,8 +3,23 @@ import GameElems.Board;
 import java.util.List;
 import java.util.ArrayList;
 public class Rook extends Piece {
+    private boolean hasMoved; // Keep track if the rook has moved
+
     public Rook(PlayerColor color) {
         super(color, 'R');
+        this.hasMoved = false;
+    }
+
+    // Add a getter for hasMoved
+    @Override
+    public boolean hasMoved() {
+        return hasMoved;
+    }
+
+    // Override setHasMoved to update hasMoved
+    @Override
+    public void setHasMoved(boolean hasMoved) {
+        this.hasMoved = hasMoved;
     }
 
     @Override
