@@ -18,6 +18,8 @@ public class ChessGUI extends JFrame {
     private Player currentPlayer;
     private Board board;
 
+    private BoardLogicHandler logic;
+
     private JLabel statusLabel; // winner banner
 
     private Timer whiteTimer;
@@ -30,8 +32,9 @@ public class ChessGUI extends JFrame {
     private Chessgame chessgame;
 
 
-    public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame) { // Modify the constructor to accept a Chessgame instance
+    public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame, BoardLogicHandler logic) { // Modify the constructor to accept a Chessgame instance
         this.board = board;
+        this.logic = logic;
         this.currentPlayer = currentPlayer;
         this.chessgame = chessgame; // Initialize the Chessgame instance
 
@@ -87,15 +90,6 @@ public class ChessGUI extends JFrame {
         moveListPanel.add(moveList); // Add JTextArea to the panel
 
 
-        JLabel space = new JLabel(String.valueOf((char)(' ')));
-        space.setHorizontalAlignment(SwingConstants.CENTER);
-        chessboardPanel.add(space);
-        for (int i = 0; i < 8; i++) {
-            JLabel label = new JLabel(String.valueOf((char)('A' + i)));
-            label.setHorizontalAlignment(SwingConstants.CENTER);
-            chessboardPanel.add(label);
-        }
-
         for (int row = 0; row < 8; row++) {
             JLabel rowLabel = new JLabel(String.valueOf(8 - row));
             rowLabel.setHorizontalAlignment(SwingConstants.CENTER);
@@ -109,6 +103,15 @@ public class ChessGUI extends JFrame {
                 squares[row][col] = square;
                 chessboardPanel.add(square);
             }
+        }
+
+        JLabel space = new JLabel(String.valueOf((char)(' ')));
+        space.setHorizontalAlignment(SwingConstants.CENTER);
+        chessboardPanel.add(space);
+        for (int i = 0; i < 8; i++) {
+            JLabel label = new JLabel(String.valueOf((char)('A' + i)));
+            label.setHorizontalAlignment(SwingConstants.CENTER);
+            chessboardPanel.add(label);
         }
 
         add(chessboardPanel);
@@ -128,6 +131,40 @@ public class ChessGUI extends JFrame {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
+    private void newBetterUpdateChessboard(GuiSquare[][] guiboard) {
+        if (board.isCheckmate(currentPlayer.getColor())) {
+            statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
+            whiteTimer.stop();
+            blackTimer.stop();
+        } else {
+            if (currentPlayer.getColor() == PlayerColor.WHITE) {
+                whiteTimer.start();
+                blackTimer.stop();
+            } else {
+                blackTimer.start();
+                whiteTimer.stop();
+            }
+        }
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                squares[row][col].setIcon(null);
+            }
+        }
+
+        for (int row = 0; row < 8; row++) {
+            for (int col = 0; col < 8; col++) {
+                if (board.getPiece(row, col) != null) {
+                    String imagePath = "obrazki/" + board.getPiece(row, col).getColor().toString().toLowerCase() +
+                            board.getPiece(row, col).getClass().getSimpleName() + ".png";
+                    ImageIcon icon = new ImageIcon(imagePath);
+                    Image image = icon.getImage();
+                    Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                    squares[row][col].setIcon(new ImageIcon(scaledImage));
+                }
+            }
+        }
+    }
     private void updateChessboard(Board board) {
         if (board.isCheckmate(currentPlayer.getColor())) {
             statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
@@ -184,6 +221,12 @@ public class ChessGUI extends JFrame {
             }
         }
 
+        public void actionGui(ActionEvent e){
+            Board mockboard = null;
+            JButton clickedSquare = (JButton) e.getSource();
+            //logic.getSquare(row, col).color = Color.GREEN;
+            System.out.println("action nowe move performed, selectedSquare = " + selectedSquare);
+        }
 
         @Override
         public void actionPerformed(ActionEvent e) {

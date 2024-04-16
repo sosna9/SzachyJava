@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 abstract public class Piece {
-
-
     private PlayerColor color;
     protected char symbol = ' ';
     private boolean hasMoved = false;
@@ -31,7 +29,17 @@ abstract public class Piece {
         this.symbol = symbol;
     }
 
-    public abstract List<int[]> generatePossibleMoves(int startX, int startY, Board board);
+    public List<int[]> generatePossibleMoves(int startX, int startY, Board board){
+        List<int[]> possibleMoves = new ArrayList<>();
+        for (int x = 0; x < 8; x++) {
+            for (int y = 0; y < 8; y++) {
+                if (isValidMove(startX, startY, x, y, board)) {
+                    possibleMoves.add(new int[]{x, y});
+                }
+            }
+        }
+        return possibleMoves;
+    }
 
     public boolean wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board board) {
         // Create a copy of the board
@@ -76,6 +84,4 @@ abstract public class Piece {
     public PlayerColor getColor() {
         return color;
     }
-
-    public abstract boolean threatensPosition(int x, int y, Board board);
 }

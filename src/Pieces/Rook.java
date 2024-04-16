@@ -49,24 +49,6 @@ public class Rook extends Piece {
     }
 
     @Override
-    public boolean threatensPosition(int x, int y, Board board) {
-        // The rook threatens a position if it can move to that position
-        for (int i = 0; i < 8; i++) {
-            // Check the row
-            if (i != y && isValidMove(x, y, x, i, board)) {
-                System.out.println("Rook threatens position"+ x + " " + y + " " + i + " " + y);
-                return true;
-            }
-            // Check the column
-            if (i != x && isValidMove(x, y, i, y, board)) {
-                System.out.println("Rook threatens position"+ x + " " + y + " " + i + " " + y);
-                return true;
-            }
-        }
-        return false;
-    }
-
-    @Override
     public List<int[]> generatePossibleMoves(int startX, int startY, Board board) {
         List<int[]> possibleMoves = new ArrayList<>();
         for (int x = 0; x < 8; x++) {

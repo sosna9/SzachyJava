@@ -16,29 +16,4 @@ public class Queen extends Piece {
                 new Bishop(getColor()).isValidMove(startX, startY, endX, endY, board);
     }
 
-    @Override
-    public boolean threatensPosition(int x, int y, Board board) {
-        // The queen threatens a position if it can move to that position
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                if (isValidMove(i, j, x, y, board)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    @Override
-    public List<int[]> generatePossibleMoves(int startX, int startY, Board board) {
-        List<int[]> possibleMoves = new ArrayList<>();
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                if (isValidMove(startX, startY, x, y, board)) {
-                    possibleMoves.add(new int[]{x, y});
-                }
-            }
-        }
-        return possibleMoves;
-    }
 }

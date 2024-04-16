@@ -6,12 +6,14 @@ import java.io.*;
 public class Chessgame {
     private Player currentPlayer;
     private Board board;
+    private BoardLogicHandler logic;
     private ChessGUI gui;
 
     public Chessgame() {
         currentPlayer = new Player(PlayerColor.WHITE);
         board = new Board();
-        gui = new ChessGUI(board, currentPlayer, this);
+        logic = new BoardLogicHandler(board);
+        gui = new ChessGUI(board, currentPlayer, this, logic);
     }
 
     public void saveGame(String filename) {
@@ -84,8 +86,8 @@ public class Chessgame {
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
-            Chessgame chessGame = new Chessgame();
-            chessGame.gui.setVisible(true);
+                Chessgame chessGame = new Chessgame();
+                chessGame.gui.setVisible(true);
         });
     }
 }

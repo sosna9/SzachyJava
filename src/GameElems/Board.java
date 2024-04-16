@@ -88,7 +88,6 @@ public class Board {
         if (!isKingInCheck(color)) {
             return false;
         }
-
         for (int x = 0; x < 8; x++) {
             for (int y = 0; y < 8; y++) {
                 Piece piece = pieces[x][y];
