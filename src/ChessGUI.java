@@ -18,7 +18,7 @@ public class ChessGUI extends JFrame {
     private Player currentPlayer;
     private Board board;
 
-    private BoardLogicHandler logic;
+    private MoveHandler logic;
 
     private JLabel statusLabel; // winner banner
 
@@ -32,11 +32,11 @@ public class ChessGUI extends JFrame {
     private Chessgame chessgame;
 
 
-    public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame, BoardLogicHandler logic) { // Modify the constructor to accept a Chessgame instance
+    public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame, MoveHandler logic) {
         this.board = board;
         this.logic = logic;
         this.currentPlayer = currentPlayer;
-        this.chessgame = chessgame; // Initialize the Chessgame instance
+        this.chessgame = chessgame;
 
         setTitle("Chess Game");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -82,7 +82,7 @@ public class ChessGUI extends JFrame {
         moveListPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
         moveListPanel.setPreferredSize(new Dimension(200, getHeight()));
 
-        DefaultListModel<String> moveListModel = new DefaultListModel<>();
+
         moveList = new JTextArea(); // Initialize JTextArea
         moveList.setEditable(false); // Prevent user from editing the text
         moveList.setLineWrap(true); // Set line wrap to true
@@ -99,7 +99,7 @@ public class ChessGUI extends JFrame {
                 JButton square = new JButton();
                 square.setPreferredSize(new Dimension(75, 75));
                 square.setBackground((row + col) % 2 == 0 ? Color.WHITE : Color.GREEN.darker());
-                square.addActionListener(new SquareClickListener(row, col, board, moveListModel));
+                square.addActionListener(new SquareClickListener(row, col, board));
                 squares[row][col] = square;
                 chessboardPanel.add(square);
             }
@@ -137,7 +137,7 @@ public class ChessGUI extends JFrame {
             whiteTimer.stop();
             blackTimer.stop();
         } else {
-            if (currentPlayer.getColor() == PlayerColor.WHITE) {
+            if (MoveHandler.turn == PlayerColor.WHITE) {
                 whiteTimer.start();
                 blackTimer.stop();
             } else {
@@ -204,13 +204,12 @@ public class ChessGUI extends JFrame {
         private int row;
         private int col;
         private Board board;
-        private final DefaultListModel<String> moveListModel;
 
-        public SquareClickListener(int row, int col, Board board, DefaultListModel<String> moveListModel) {
+
+        public SquareClickListener(int row, int col, Board board) {
             this.row = row;
             this.col = col;
             this.board = board;
-            this.moveListModel = moveListModel;
         }
 
         public void clearHighlighting() {
@@ -222,32 +221,33 @@ public class ChessGUI extends JFrame {
         }
 
         public void actionGui(ActionEvent e){
+            // new nowe move gui handle move
             Board mockboard = null;
             JButton clickedSquare = (JButton) e.getSource();
-            //logic.getSquare(row, col).color = Color.GREEN;
-            System.out.println("action nowe move performed, selectedSquare = " + selectedSquare);
+            if (board.getPiece(row, col) != null && board.getPiece(row, col).getColor() == currentPlayer.getColor()) {
+                selectedSquare = clickedSquare;
+                selectedSquare.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
+                List<int[]> possibleMoves = board.getPiece(row, col).generatePossibleMoves(row, col, board);
+                for (int[] move : possibleMoves) {
+                    squares[move[0]][move[1]].setBackground(Color.YELLOW);
+                }
+            } else {
+                clearHighlighting();
+            }
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedSquare = (JButton) e.getSource();
+            logic.handleClick(row, col);
+
             if (selectedSquare == null) {
                 if (board.getPiece(row, col) != null && board.getPiece(row, col).getColor() == currentPlayer.getColor()) {
                     selectedSquare = clickedSquare;
                     selectedSquare.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
                     List<int[]> possibleMoves = board.getPiece(row, col).generatePossibleMoves(row, col, board);
                     for (int[] move : possibleMoves) {
-                        // Temporarily move the piece
-                        Piece temp = board.getPiece(move[0], move[1]);
-                        board.setPiece(move[0], move[1], board.getPiece(row, col));
-                        board.setPiece(row, col, null);
-                        // Check if the move would put the king in check
-                        if (!board.isKingInCheck(currentPlayer.getColor())) {
-                            squares[move[0]][move[1]].setBackground(Color.YELLOW);
-                        }
-                        // Move the piece back
-                        board.setPiece(row, col, board.getPiece(move[0], move[1]));
-                        board.setPiece(move[0], move[1], temp);
+                        squares[move[0]][move[1]].setBackground(Color.YELLOW);
                     }
                 }
             } else {
@@ -293,7 +293,6 @@ public class ChessGUI extends JFrame {
                         }
                     }
 
-                    moveListModel.addElement(moveStringg);
                     moveList.append(moveStringg + ",  ");
 
 
@@ -331,7 +330,12 @@ public class ChessGUI extends JFrame {
                 updateChessboard(board);
             }
             if (board.isCheckmate(currentPlayer.getColor())) {
-                statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
+                if (currentPlayer.getColor() == PlayerColor.WHITE){
+                    statusLabel.setText("Black Won"); // Update the label
+                } else {
+                    statusLabel.setText("White Won"); // Update the label
+                }
+
             }
         }
     }

@@ -10,6 +10,9 @@ public class Queen extends Piece {
 
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
+        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
+            return false;
+        }
         // Check if the move is valid for a queen (can move horizontally, vertically, or diagonally)
         // Similar to the logic of Rook and Bishop
         return new Rook(getColor()).isValidMove(startX, startY, endX, endY, board) ||

@@ -22,7 +22,9 @@ public class Pawn extends Piece {
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
         int direction = (getColor() == PlayerColor.WHITE) ? 1 : -1; // Direction of movement depends on pawn's color
-
+        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
+            return false;
+        }
         // Check if the move is forward
         if (startY == endY && board.getPiece(endX,endY) == null) {
             // Normal move

@@ -6,13 +6,13 @@ import java.io.*;
 public class Chessgame {
     private Player currentPlayer;
     private Board board;
-    private BoardLogicHandler logic;
+    private MoveHandler logic;
     private ChessGUI gui;
 
     public Chessgame() {
         currentPlayer = new Player(PlayerColor.WHITE);
         board = new Board();
-        logic = new BoardLogicHandler(board);
+        logic = new MoveHandler(board);
         gui = new ChessGUI(board, currentPlayer, this, logic);
     }
 

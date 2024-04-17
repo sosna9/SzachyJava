@@ -24,6 +24,9 @@ public class Rook extends Piece {
 
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
+        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
+            return false;
+        }
         // Rook can move horizontally or vertically any number of squares
         if (startX == endX || startY == endY) {
             // Check if there are any pieces in the way

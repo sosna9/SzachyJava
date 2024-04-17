@@ -14,39 +14,38 @@ public class King extends Piece {
         return hasMoved;
     }
 
-    public boolean isInCheck(int x, int y, Board board) {
-        for (int i = 0; i < 8; i++) {
-            for (int j = 0; j < 8; j++) {
-                Piece piece = board.getPiece(i,j);
-                if (piece != null && piece.getColor() != this.getColor() && piece.isValidMove(i, j, x, y, board)) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
 
     // In King.java
     @Override
-    public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
+    public boolean isValidMove(int startCol, int startRow, int endCol, int endRow, Board board) {
+        if (wouldThisMovePutKingInCheck(startCol, startRow, endCol, endRow, board)) {
+            return false;
+        }
         // Check if the move is valid for a king (can move one square in any direction)
-        int dx = Math.abs(startX - endX);
-        int dy = Math.abs(startY - endY);
+        int dRows = Math.abs(startCol - endCol);
+        int dCol = Math.abs(startRow - endRow);
 
         // The move is valid if the destination square is adjacent and empty or contains an opponent's piece
-        boolean isAdjacentMove = dx <= 1 && dy <= 1 && (board.getPiece(endX, endY)== null || board.getPiece(endX, endY).getColor() != this.getColor());
-
-        // Check if the destination square is under attack
-        boolean isUnderAttack = wouldThisMovePutKingInCheck(startX, startY, endX, endY, board);
+        boolean isAdjacentMove = dRows <= 1 && dCol <= 1 && (board.getPiece(endCol, endRow)== null || board.getPiece(endCol, endRow).getColor() != this.getColor());
 
         // Check for castling
-        boolean isCastlingMove = !hasMoved && dx == 0 && dy == 2 && board.getPiece(startX, startY + dy / 2) == null && board.getPiece(startX, startY + dy) == null;
-        if (isCastlingMove) {
-            Piece rook = board.getPiece(startX, startY + dy / 2 * 3);
-            isCastlingMove = rook instanceof Rook && !rook.hasMoved();
+        boolean isKingSideCastle = !hasMoved && dRows == 0 && endRow == 6 &&
+                board.getPiece(startCol, startRow + 1) == null &&
+                board.getPiece(startCol, startRow + 2) == null;
+        if (isKingSideCastle) {
+            Piece rook = board.getPiece(startCol, startRow + dCol / 2 * 3);
+            isKingSideCastle = rook instanceof Rook && !rook.hasMoved() && rook.getColor()== this.getColor();
+        }
+        boolean isQueenSideCastling = !hasMoved && dRows == 0 && endRow == 2 &&
+                board.getPiece(startCol, startRow -1) == null &&
+                board.getPiece(startCol, startRow -2) == null &&
+                board.getPiece(startCol, startRow -3) == null;
+        if (isQueenSideCastling) {
+            Piece rook = board.getPiece(startCol, 0);
+            isQueenSideCastling = rook instanceof Rook && !rook.hasMoved() && rook.getColor()== this.getColor();
         }
 
-        return (isAdjacentMove || isCastlingMove) && !isUnderAttack;
+        return (isAdjacentMove || isKingSideCastle || isQueenSideCastling);
     }
 
 }

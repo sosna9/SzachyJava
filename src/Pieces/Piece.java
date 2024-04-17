@@ -49,11 +49,9 @@ abstract public class Piece {
                 copiedBoard.setPiece(x, y,  board.getPiece(x,y));;
             }
         }
-
         // Make the move on the copied board
         copiedBoard.setPiece(endX, endY, copiedBoard.getPiece(startX, startY));
         copiedBoard.setPiece(startX,startY, null);
-
         // Find the position of the king on the copied board
         int kingX = -1, kingY = -1;
         for (int x = 0; x < 8; x++) {
