@@ -131,7 +131,7 @@ public class ChessGUI extends JFrame {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
-    private void newBetterUpdateChessboard(GuiSquare[][] guiboard) {
+    private void newBetterUpdateChessboard(GuiSquare[][] guiBoard) {
         if (board.isCheckmate(currentPlayer.getColor())) {
             statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
             whiteTimer.stop();
@@ -154,9 +154,9 @@ public class ChessGUI extends JFrame {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                if (board.getPiece(row, col) != null) {
-                    String imagePath = "obrazki/" + board.getPiece(row, col).getColor().toString().toLowerCase() +
-                            board.getPiece(row, col).getClass().getSimpleName() + ".png";
+                if (guiBoard[row][col].getPiece() != null) {
+                    String imagePath = "obrazki/" + guiBoard[row][col].getPiece().getColor().toString().toLowerCase() +
+                            guiBoard[row][col].getPiece().getClass().getSimpleName() + ".png";
                     ImageIcon icon = new ImageIcon(imagePath);
                     Image image = icon.getImage();
                     Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
@@ -167,7 +167,7 @@ public class ChessGUI extends JFrame {
     }
     private void updateChessboard(Board board) {
         if (board.isCheckmate(currentPlayer.getColor())) {
-            statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
+            statusLabel.setText(currentPlayer.getColor() + " Won");
             whiteTimer.stop();
             blackTimer.stop();
         } else {
@@ -188,12 +188,23 @@ public class ChessGUI extends JFrame {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                if (board.getPiece(row, col) != null) {
-                    String imagePath = "obrazki/" + board.getPiece(row, col).getColor().toString().toLowerCase() +
-                            board.getPiece(row, col).getClass().getSimpleName() + ".png";
+                Piece piece = board.getPiece(row, col);
+                if (piece != null) {
+                    String imagePath = "obrazki/" + piece.getColor().toString().toLowerCase() +
+                            piece.getClass().getSimpleName() + ".png";
                     ImageIcon icon = new ImageIcon(imagePath);
                     Image image = icon.getImage();
                     Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
+                    for (int i = 0; i < 8; i++) {
+                        for (int j = 0; j < 8; j++) {
+                            if (logic.guiBoard[i][j].highlighted) {
+                                squares[i][j].setBackground(Color.YELLOW);
+                            }
+                            else {
+                                squares[i][j].setBackground((i + j) % 2 == 0 ? Color.WHITE : Color.GREEN.darker());
+                            }
+                        }
+                    }
                     squares[row][col].setIcon(new ImageIcon(scaledImage));
                 }
             }
@@ -204,7 +215,6 @@ public class ChessGUI extends JFrame {
         private int row;
         private int col;
         private Board board;
-
 
         public SquareClickListener(int row, int col, Board board) {
             this.row = row;
@@ -220,122 +230,19 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        public void actionGui(ActionEvent e){
-            // new nowe move gui handle move
-            Board mockboard = null;
-            JButton clickedSquare = (JButton) e.getSource();
-            if (board.getPiece(row, col) != null && board.getPiece(row, col).getColor() == currentPlayer.getColor()) {
-                selectedSquare = clickedSquare;
-                selectedSquare.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
-                List<int[]> possibleMoves = board.getPiece(row, col).generatePossibleMoves(row, col, board);
-                for (int[] move : possibleMoves) {
-                    squares[move[0]][move[1]].setBackground(Color.YELLOW);
-                }
-            } else {
-                clearHighlighting();
-            }
-        }
-
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedSquare = (JButton) e.getSource();
             logic.handleClick(row, col);
+            //newBetterUpdateChessboard(logic.guiBoard);
+            updateChessboard(board);
 
-            if (selectedSquare == null) {
-                if (board.getPiece(row, col) != null && board.getPiece(row, col).getColor() == currentPlayer.getColor()) {
-                    selectedSquare = clickedSquare;
-                    selectedSquare.setBorder(BorderFactory.createLineBorder(Color.BLUE, 3));
-                    List<int[]> possibleMoves = board.getPiece(row, col).generatePossibleMoves(row, col, board);
-                    for (int[] move : possibleMoves) {
-                        squares[move[0]][move[1]].setBackground(Color.YELLOW);
-                    }
-                }
-            } else {
-                clearHighlighting();
-                int selectedRow = -1;
-                int selectedCol = -1;
-                for (int r = 0; r < 8; r++) {
-                    for (int c = 0; c < 8; c++) {
-                        if (squares[r][c] == selectedSquare) {
-                            selectedRow = r;
-                            selectedCol = c;
-                            break;
-                        }
-                    }
-                }
-
-                if (board.getPiece(selectedRow, selectedCol).isValidMove(selectedRow, selectedCol, row, col, board)) {
-                    String startSquare = String.format("%c%d", 'a' + selectedCol, 8 - selectedRow);
-                    String endSquare = String.format("%c%d", 'a' + col, 8 - row);
-                    String moveStringg = "";
-
-                    // Check for castling
-                    if (board.getPiece(selectedRow, selectedCol) instanceof King && Math.abs(selectedCol - col) == 2) {
-                        if (col > selectedCol) {
-                            moveStringg = "O-O"; // Kingside castling
-                        } else {
-                            moveStringg = "O-O-O"; // Queenside castling
-                        }
-                    } else {
-                        // Standard move notation
-                        if (board.getPiece(selectedRow, selectedCol) instanceof Pawn) {
-                            if (board.getPiece(row, col) != null) {
-                                moveStringg = startSquare.charAt(0) + "x" + endSquare; // Pawn capture
-                            } else {
-                                moveStringg = endSquare; // Pawn move
-                            }
-                        } else {
-                            if (board.getPiece(row, col) != null) {
-                                moveStringg = board.getPiece(selectedRow, selectedCol).getPieceSymbol() + "x" + endSquare; // Piece capture
-                            } else {
-                                moveStringg = board.getPiece(selectedRow, selectedCol).getPieceSymbol() + endSquare; // Piece move
-                            }
-                        }
-                    }
-
-                    moveList.append(moveStringg + ",  ");
-
-
-                    // Check for castling
-                    if (board.getPiece(selectedRow, selectedCol) instanceof King && Math.abs(selectedCol - col) == 2) {
-                        int rookStartCol = (col > selectedCol) ? 7 : 0;
-                        int rookEndCol = (col > selectedCol) ? 5 : 3;
-                        board.setPiece(row, rookEndCol, board.getPiece(row, rookStartCol));
-                        board.setPiece(row, rookStartCol, null);
-                    }
-
-                    // Check for en passant
-                    if (board.getPiece(selectedRow, selectedCol) instanceof Pawn && Math.abs(selectedRow - row) == 1 && Math.abs(selectedCol - col) == 1 && board.getPiece(row, col) == null) {
-                        int capturedPawnRow = selectedRow;
-                        int capturedPawnCol = col;
-                        board.setPiece(capturedPawnRow, capturedPawnCol, null);
-                    }
-
-                    if (board.getPiece(selectedRow, selectedCol) instanceof Pawn && Math.abs(selectedRow - row) == 2) {
-                        ((Pawn) board.getPiece(selectedRow, selectedCol)).setHasMovedTwo(true);
-                    } else if (board.getPiece(selectedRow, selectedCol) instanceof Pawn) {
-                        // Add additional logic for Pawn here
-                    }
-
-                    board.setPiece(row, col, board.getPiece(selectedRow, selectedCol));
-                    board.getPiece(row, col).setHasMoved(true);
-                    board.setPiece(selectedRow, selectedCol, null);
-
-                    currentPlayer = (currentPlayer.getColor() == PlayerColor.WHITE) ?
-                            new Player(PlayerColor.BLACK) : new Player(PlayerColor.WHITE);
-                }
-
-                selectedSquare.setBorder(null);
-                selectedSquare = null;
-                updateChessboard(board);
-            }
             if (board.isCheckmate(currentPlayer.getColor())) {
                 if (currentPlayer.getColor() == PlayerColor.WHITE){
-                    statusLabel.setText("Black Won"); // Update the label
+                    statusLabel.setText("Black Won");
                 } else {
-                    statusLabel.setText("White Won"); // Update the label
+                    statusLabel.setText("White Won");
                 }
-
             }
         }
     }

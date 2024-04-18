@@ -15,31 +15,38 @@ public class King extends Piece {
     }
 
 
-    // In King.java
+
     @Override
-    public boolean isValidMove(int startCol, int startRow, int endCol, int endRow, Board board) {
-        if (wouldThisMovePutKingInCheck(startCol, startRow, endCol, endRow, board)) {
+    public boolean isValidMove(int startCol, int startRow, int endCol, int endY, Board board) {
+        if (wouldThisMovePutKingInCheck(startCol, startRow, endCol, endY, board)) {
             return false;
         }
         // Check if the move is valid for a king (can move one square in any direction)
         int dRows = Math.abs(startCol - endCol);
-        int dCol = Math.abs(startRow - endRow);
+        int dCol = Math.abs(startRow - endY);
 
         // The move is valid if the destination square is adjacent and empty or contains an opponent's piece
-        boolean isAdjacentMove = dRows <= 1 && dCol <= 1 && (board.getPiece(endCol, endRow)== null || board.getPiece(endCol, endRow).getColor() != this.getColor());
+        boolean isAdjacentMove = dRows <= 1 && dCol <= 1 && (board.getPiece(endCol, endY)== null || board.getPiece(endCol, endY).getColor() != this.getColor());
 
         // Check for castling
-        boolean isKingSideCastle = !hasMoved && dRows == 0 && endRow == 6 &&
+        boolean isKingSideCastle = !hasMoved && dRows == 0 && endY == 6 &&
                 board.getPiece(startCol, startRow + 1) == null &&
-                board.getPiece(startCol, startRow + 2) == null;
+                board.getPiece(startCol, startRow + 2) == null &&
+                !board.isKingInCheck(this.getColor()) &&    // The king cannot be in check while castling
+                !wouldThisMovePutKingInCheck(startCol, startRow, startCol, startRow + 1, board); // The king cannot move across check
+
         if (isKingSideCastle) {
-            Piece rook = board.getPiece(startCol, startRow + dCol / 2 * 3);
+            Piece rook = board.getPiece(startCol, 7);
             isKingSideCastle = rook instanceof Rook && !rook.hasMoved() && rook.getColor()== this.getColor();
         }
-        boolean isQueenSideCastling = !hasMoved && dRows == 0 && endRow == 2 &&
+        boolean isQueenSideCastling = !hasMoved && dRows == 0 && endY == 2 &&
                 board.getPiece(startCol, startRow -1) == null &&
                 board.getPiece(startCol, startRow -2) == null &&
-                board.getPiece(startCol, startRow -3) == null;
+                board.getPiece(startCol, startRow -3) == null &&
+                !board.isKingInCheck(this.getColor()) &&
+                !wouldThisMovePutKingInCheck(startCol, startRow, startCol, startRow - 1, board);  // The king cannot move across check
+
+
         if (isQueenSideCastling) {
             Piece rook = board.getPiece(startCol, 0);
             isQueenSideCastling = rook instanceof Rook && !rook.hasMoved() && rook.getColor()== this.getColor();
