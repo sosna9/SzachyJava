@@ -1,8 +1,7 @@
 package Pieces;
 import GameElems.Board;
 
-import java.util.List;
-import java.util.ArrayList;
+
 public class Pawn extends Piece {
 
     private boolean hasMovedTwo;
@@ -20,29 +19,26 @@ public class Pawn extends Piece {
     }
 
     @Override
-    public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
-        int direction = (getColor() == PlayerColor.WHITE) ? 1 : -1; // Direction of movement depends on pawn's color
-        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
-            return false;
-        }
+    public boolean isValidMove(int startRow, int startCol, int endRow, int endCol, Board board) {
+        int direction = (getColor() == PlayerColor.BLACK) ? 1 : -1; // Direction of movement depends on pawn's color
         // Check if the move is forward
-        if (startY == endY && board.getPiece(endX,endY) == null) {
+        if (startCol == endCol && board.getPiece(endRow,endCol) == null) {
             // Normal move
-            if (startX + direction == endX) {
+            if (startRow + direction == endRow) {
                 return true;
             }
             // First move, pawn can move two squares forward
-            return !this.hasMoved() && startX + 2 * direction == endX && board.getPiece(startX + direction, endY) == null;
+            return !this.hasMoved() && startRow + 2 * direction == endRow && board.getPiece(startRow + direction, endCol) == null;
         }
         // Check if the move is a capture
-        else if (Math.abs(startY - endY) == 1 && startX + direction == endX) {
+        else if (Math.abs(startCol - endCol) == 1 && startRow + direction == endRow) {
             // Check if there's an opponent's piece to capture
-            if (board.getPiece(endX, endY) != null && board.getPiece(endX,endY).getColor() != this.getColor()) {
+            if (board.getPiece(endRow, endCol) != null && board.getPiece(endRow,endCol).getColor() != this.getColor()) {
                 return true;
             }
             // Check for en passant
-            else if ((getColor() == PlayerColor.WHITE && startX == 4) || (getColor() == PlayerColor.BLACK && startX == 3)) {
-                Piece adjacentPiece = board.getPiece(startX, startY + endY - startY);
+            else if ((getColor() == PlayerColor.BLACK && startRow == 4) || (getColor() == PlayerColor.WHITE && startRow == 3)) {
+                Piece adjacentPiece = board.getPiece(startRow, startCol + endCol - startCol);
                 return adjacentPiece instanceof Pawn && adjacentPiece.getColor() != getColor() && adjacentPiece.getHasMovedTwo();
             }
         }

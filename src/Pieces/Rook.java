@@ -24,9 +24,6 @@ public class Rook extends Piece {
 
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
-        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
-            return false;
-        }
         // Rook can move horizontally or vertically any number of squares
         if (startX == endX || startY == endY) {
             // Check if there are any pieces in the way
@@ -49,19 +46,6 @@ public class Rook extends Piece {
             return board.getPiece(endX,endY) == null || board.getPiece(endX,endY).getColor() != this.getColor();
         }
         return false;
-    }
-
-    @Override
-    public List<int[]> generatePossibleMoves(int startX, int startY, Board board) {
-        List<int[]> possibleMoves = new ArrayList<>();
-        for (int x = 0; x < 8; x++) {
-            for (int y = 0; y < 8; y++) {
-                if (isValidMove(startX, startY, x, y, board)) {
-                    possibleMoves.add(new int[]{x, y});
-                }
-            }
-        }
-        return possibleMoves;
     }
 }
 

@@ -15,6 +15,10 @@ public class Player {
     public PlayerColor getColor() {
         return color;
     }
+
+    public void setColor(PlayerColor currentTurn) {
+        this.color = currentTurn;
+    }
 }
 
 

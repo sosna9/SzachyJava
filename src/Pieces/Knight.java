@@ -11,9 +11,6 @@ public class Knight extends Piece {
 
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
-        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
-            return false;
-        }
         int dx = Math.abs(startX - endX);
         int dy = Math.abs(startY - endY);
 
@@ -23,4 +20,5 @@ public class Knight extends Piece {
         }
         return false;
     }
+
 }

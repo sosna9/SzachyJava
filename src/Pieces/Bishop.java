@@ -1,8 +1,7 @@
 package Pieces;
 import GameElems.Board;
 
-import java.util.List;
-import java.util.ArrayList;
+
 
 public class Bishop extends Piece {
     public Bishop(PlayerColor color) {
@@ -11,10 +10,7 @@ public class Bishop extends Piece {
 
     @Override
     public boolean isValidMove(int startX, int startY, int endX, int endY, Board board) {
-        if (wouldThisMovePutKingInCheck(startX, startY, endX, endY, board)) {
-            return false;
-        }
-        
+
         // Check if the move is valid for a bishop (can move diagonally)
         if (Math.abs(endX - startX) == Math.abs(endY - startY)) {
             int xDirection = Integer.compare(endX, startX);
@@ -33,5 +29,4 @@ public class Bishop extends Piece {
         }
         return false;
     }
-
 }

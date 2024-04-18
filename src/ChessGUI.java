@@ -12,7 +12,7 @@ public class ChessGUI extends JFrame {
     private final JPanel chessboardPanel;
     private final JPanel menuPanel;
     private final JPanel moveListPanel;
-    private JTextArea moveList;
+    private final JTextArea moveList;
     private JButton[][] squares;
     private JButton selectedSquare;
     private Player currentPlayer;
@@ -131,40 +131,7 @@ public class ChessGUI extends JFrame {
         return String.format("%02d:%02d", minutes, seconds);
     }
 
-    private void newBetterUpdateChessboard(GuiSquare[][] guiBoard) {
-        if (board.isCheckmate(currentPlayer.getColor())) {
-            statusLabel.setText(currentPlayer.getColor() + " Won"); // Update the label
-            whiteTimer.stop();
-            blackTimer.stop();
-        } else {
-            if (MoveHandler.turn == PlayerColor.WHITE) {
-                whiteTimer.start();
-                blackTimer.stop();
-            } else {
-                blackTimer.start();
-                whiteTimer.stop();
-            }
-        }
 
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                squares[row][col].setIcon(null);
-            }
-        }
-
-        for (int row = 0; row < 8; row++) {
-            for (int col = 0; col < 8; col++) {
-                if (guiBoard[row][col].getPiece() != null) {
-                    String imagePath = "obrazki/" + guiBoard[row][col].getPiece().getColor().toString().toLowerCase() +
-                            guiBoard[row][col].getPiece().getClass().getSimpleName() + ".png";
-                    ImageIcon icon = new ImageIcon(imagePath);
-                    Image image = icon.getImage();
-                    Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
-                    squares[row][col].setIcon(new ImageIcon(scaledImage));
-                }
-            }
-        }
-    }
     private void updateChessboard(Board board) {
         if (board.isCheckmate(currentPlayer.getColor())) {
             statusLabel.setText(currentPlayer.getColor() + " Won");
@@ -197,7 +164,7 @@ public class ChessGUI extends JFrame {
                     Image scaledImage = image.getScaledInstance(50, 50, Image.SCALE_SMOOTH);
                     for (int i = 0; i < 8; i++) {
                         for (int j = 0; j < 8; j++) {
-                            if (logic.guiBoard[i][j].highlighted) {
+                            if (logic.getSquare(i,j).highlighted) {
                                 squares[i][j].setBackground(Color.YELLOW);
                             }
                             else {
@@ -233,9 +200,14 @@ public class ChessGUI extends JFrame {
         @Override
         public void actionPerformed(ActionEvent e) {
             JButton clickedSquare = (JButton) e.getSource();
+            System.out.println("Clicked square: " + row + " " + col+"--------------");
             logic.handleClick(row, col);
-            //newBetterUpdateChessboard(logic.guiBoard);
+            // Update the current player
+            currentPlayer.setColor(logic.getCurrentTurn());
             updateChessboard(board);
+            // Update the move list
+            List<String> moveStrings = logic.getMoveStrings();
+            moveList.setText(String.join(", ", moveStrings));
 
             if (board.isCheckmate(currentPlayer.getColor())) {
                 if (currentPlayer.getColor() == PlayerColor.WHITE){
@@ -258,6 +230,7 @@ public class ChessGUI extends JFrame {
         startGameItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                logic.clearMoveStrings();
                 // Reset the board and current player
                 board.initializePieces();
                 currentPlayer = new Player(PlayerColor.WHITE);
