@@ -31,8 +31,12 @@ public class Chessgame {
                     }
                 }
             }
+
+            // Show a dialog with a success message
+            JOptionPane.showMessageDialog(null, "Game saved successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            // Show a dialog with an error message
+            JOptionPane.showMessageDialog(null, "An error occurred while saving the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
@@ -44,6 +48,14 @@ public class Chessgame {
 
             // Clear the board
             board = new Board();
+
+
+            // Set all pieces to null
+            for (int i = 0; i < 8; i++) {
+                for (int j = 0; j < 8; j++) {
+                    board.setPiece(i, j, null);
+                }
+            }
 
             // Load the state of the board
             while ((line = reader.readLine()) != null) {
@@ -79,8 +91,18 @@ public class Chessgame {
                 }
                 board.setPiece(x, y, piece);
             }
+
+            // Update the logic instance
+            logic = new MoveHandler(board);
+
+            // Update the board and logic instances in the GUI
+            gui.updateBoardAndLogic(board, logic);
+
+            // Show a dialog with a success message
+            JOptionPane.showMessageDialog(null, "Game loaded successfully!", "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
-            e.printStackTrace();
+            // Show a dialog with an error message
+            JOptionPane.showMessageDialog(null, "An error occurred while loading the game: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

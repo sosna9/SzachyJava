@@ -14,10 +14,8 @@ public class ChessGUI extends JFrame {
     private final JPanel moveListPanel;
     private final JTextArea moveList;
     private JButton[][] squares;
-    private JButton selectedSquare;
     private Player currentPlayer;
     private Board board;
-
     private MoveHandler logic;
 
     private JLabel statusLabel; // winner banner
@@ -99,7 +97,7 @@ public class ChessGUI extends JFrame {
                 JButton square = new JButton();
                 square.setPreferredSize(new Dimension(75, 75));
                 square.setBackground((row + col) % 2 == 0 ? Color.WHITE : Color.GREEN.darker());
-                square.addActionListener(new SquareClickListener(row, col, board));
+                square.addActionListener(new SquareClickListener(row, col));
                 squares[row][col] = square;
                 chessboardPanel.add(square);
             }
@@ -118,6 +116,14 @@ public class ChessGUI extends JFrame {
         add(moveListPanel,  BorderLayout.WEST);
         add(menuPanel, BorderLayout.EAST);
         updateChessboard(board);
+    }
+
+    public void updateBoardAndLogic(Board board, MoveHandler logic) {
+        this.board = board;
+        this.logic = logic;
+        updateChessboard(board);
+        chessboardPanel.repaint();
+        chessboardPanel.revalidate();
     }
 
     private void updateTimerLabels() {
@@ -181,12 +187,10 @@ public class ChessGUI extends JFrame {
     private class SquareClickListener implements ActionListener {
         private int row;
         private int col;
-        private Board board;
 
-        public SquareClickListener(int row, int col, Board board) {
+        public SquareClickListener(int row, int col) {
             this.row = row;
             this.col = col;
-            this.board = board;
         }
 
         public void clearHighlighting() {
@@ -199,8 +203,6 @@ public class ChessGUI extends JFrame {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            JButton clickedSquare = (JButton) e.getSource();
-            System.out.println("Clicked square: " + row + " " + col+"--------------");
             logic.handleClick(row, col);
             // Update the current player
             currentPlayer.setColor(logic.getCurrentTurn());
@@ -246,7 +248,7 @@ public class ChessGUI extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 // Save the game state to a file
-                chessgame.saveGame("savegame.txt"); // Use the Chessgame instance to call saveGame
+                chessgame.saveGame("savegame3.txt"); // Use the Chessgame instance to call saveGame
             }
         });
 
