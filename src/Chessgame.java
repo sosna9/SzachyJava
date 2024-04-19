@@ -26,8 +26,8 @@ public class Chessgame {
                 for (int j = 0; j < 8; j++) {
                     Piece piece = board.getPiece(i, j);
                     if (piece != null) {
-                        // Save the piece's color, type, and position
-                        writer.println(piece.getColor() + " " + piece.getClass().getSimpleName() + " " + i + " " + j);
+                        // Save the piece's color, type, position, and hasMoved status
+                        writer.println(piece.getColor() + " " + piece.getClass().getSimpleName() + " " + i + " " + j + " " + piece.hasMoved());
                     }
                 }
             }
@@ -49,7 +49,6 @@ public class Chessgame {
             // Clear the board
             board = new Board();
 
-
             // Set all pieces to null
             for (int i = 0; i < 8; i++) {
                 for (int j = 0; j < 8; j++) {
@@ -64,6 +63,7 @@ public class Chessgame {
                 String pieceType = parts[1];
                 int x = Integer.parseInt(parts[2]);
                 int y = Integer.parseInt(parts[3]);
+                boolean hasMoved = Boolean.parseBoolean(parts[4]);
 
                 // Create the piece and place it on the board
                 Piece piece;
@@ -89,6 +89,7 @@ public class Chessgame {
                     default:
                         throw new IllegalArgumentException("Invalid piece type: " + pieceType);
                 }
+                piece.setHasMoved(hasMoved);
                 board.setPiece(x, y, piece);
             }
 

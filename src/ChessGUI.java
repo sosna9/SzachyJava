@@ -9,26 +9,30 @@ import javax.swing.JFileChooser;
 import java.io.*;
 
 public class ChessGUI extends JFrame {
-    private final JPanel chessboardPanel;
-    private final JPanel menuPanel;
-    private final JPanel moveListPanel;
-    private final JTextArea moveList;
-    private JButton[][] squares;
+    private final Chessgame chessgame;
     private Player currentPlayer;
     private Board board;
     private MoveHandler logic;
 
-    private JLabel statusLabel; // winner banner
+    private final JPanel moveListPanel;
+    private final JTextArea moveList;
+    
+    
+    private JLabel[] rowLabels;
+    private JLabel[] colLabels;
+    private JButton[][] squares;
+    private final JPanel chessboardPanel;
 
+    
+    private JLabel statusLabel; // winner banner
     private Timer whiteTimer;
     private Timer blackTimer;
     private JLabel whiteTimeLabel;
     private JLabel blackTimeLabel;
     private int whiteTime;
     private int blackTime;
-
-    private Chessgame chessgame;
-
+    
+    
 
     public ChessGUI(Board board, Player currentPlayer, Chessgame chessgame, MoveHandler logic) {
         this.board = board;
@@ -65,7 +69,7 @@ public class ChessGUI extends JFrame {
             }
         });
 
-        menuPanel = createMenuPanel(); // Initialize menuPanel here
+        JPanel menuPanel = createMenuPanel(); // Initialize menuPanel here
         menuPanel.add(whiteTimeLabel);
         menuPanel.add(blackTimeLabel);
 
@@ -87,10 +91,11 @@ public class ChessGUI extends JFrame {
         moveList.setWrapStyleWord(true); // Set word wrap to true
         moveListPanel.add(moveList); // Add JTextArea to the panel
 
-
+        rowLabels = new JLabel[8];
         for (int row = 0; row < 8; row++) {
             JLabel rowLabel = new JLabel(String.valueOf(8 - row));
             rowLabel.setHorizontalAlignment(SwingConstants.CENTER);
+            rowLabels[row] = rowLabel;
             chessboardPanel.add(rowLabel);
 
             for (int col = 0; col < 8; col++) {
@@ -103,27 +108,43 @@ public class ChessGUI extends JFrame {
             }
         }
 
-        JLabel space = new JLabel(String.valueOf((char)(' ')));
+        colLabels = new JLabel[8];
+        JLabel space = new JLabel(String.valueOf(' '));
         space.setHorizontalAlignment(SwingConstants.CENTER);
         chessboardPanel.add(space);
+
         for (int i = 0; i < 8; i++) {
             JLabel label = new JLabel(String.valueOf((char)('A' + i)));
             label.setHorizontalAlignment(SwingConstants.CENTER);
+            colLabels[i] = label;
             chessboardPanel.add(label);
         }
-
+        
         add(chessboardPanel);
         add(moveListPanel,  BorderLayout.WEST);
         add(menuPanel, BorderLayout.EAST);
         updateChessboard(board);
     }
 
+    public void flipBoard() {
+        for (int row = 0; row < 4; row++) {
+            for (int col = 0; col < 8; col++) {
+                JButton temp = squares[row][col];
+                squares[row][col] = squares[7 - row][7 - col];
+                squares[7 - row][7 - col] = temp;
+            }
+        }
+
+        for (int i = 0; i < 8; i++) {
+            rowLabels[i].setText(String.valueOf(currentPlayer.getColor() == PlayerColor.WHITE ? 8 - i : i + 1));
+            colLabels[i].setText(String.valueOf((char)('A' + (7 - i))));
+        }
+    }
+
     public void updateBoardAndLogic(Board board, MoveHandler logic) {
         this.board = board;
         this.logic = logic;
         updateChessboard(board);
-        chessboardPanel.repaint();
-        chessboardPanel.revalidate();
     }
 
     private void updateTimerLabels() {
@@ -161,7 +182,7 @@ public class ChessGUI extends JFrame {
 
         for (int row = 0; row < 8; row++) {
             for (int col = 0; col < 8; col++) {
-                Piece piece = board.getPiece(row, col);
+                Piece piece = logic.getSquare(row, col).getPiece();
                 if (piece != null) {
                     String imagePath = "obrazki/" + piece.getColor().toString().toLowerCase() +
                             piece.getClass().getSimpleName() + ".png";
@@ -193,20 +214,18 @@ public class ChessGUI extends JFrame {
             this.col = col;
         }
 
-        public void clearHighlighting() {
-            for (int row = 0; row < 8; row++) {
-                for (int col = 0; col < 8; col++) {
-                    squares[row][col].setBackground((row + col) % 2 == 0 ? Color.WHITE : Color.GREEN.darker());
-                }
-            }
-        }
-
         @Override
         public void actionPerformed(ActionEvent e) {
-            logic.handleClick(row, col);
+            PlayerColor currentTurnBeforeMove = logic.getCurrentTurn();
+            // Adjust the row and column based on the current player's perspective
+            int adjustedRow = currentPlayer.getColor() == PlayerColor.WHITE ? row : 7 - row;
+            int adjustedCol = currentPlayer.getColor() == PlayerColor.WHITE ? col : 7 - col;
+            logic.handleClick(adjustedRow, adjustedCol);
+            PlayerColor currentTurnAfterMove = logic.getCurrentTurn();
+
             // Update the current player
-            currentPlayer.setColor(logic.getCurrentTurn());
-            updateChessboard(board);
+            currentPlayer.setColor(currentTurnAfterMove);
+
             // Update the move list
             List<String> moveStrings = logic.getMoveStrings();
             moveList.setText(String.join(", ", moveStrings));
@@ -218,6 +237,11 @@ public class ChessGUI extends JFrame {
                     statusLabel.setText("White Won");
                 }
             }
+            // Flip the board only if the player's turn has changed
+            if (currentTurnBeforeMove != currentTurnAfterMove) {
+                flipBoard();
+            }
+            updateChessboard(board);
         }
     }
 
@@ -229,42 +253,54 @@ public class ChessGUI extends JFrame {
         JMenuItem loadGameItem = new JMenuItem("Load Game");
         JMenuItem saveGameItem = new JMenuItem("Save Game");
 
-        startGameItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                logic.clearMoveStrings();
-                // Reset the board and current player
-                board.initializePieces();
-                currentPlayer = new Player(PlayerColor.WHITE);
-                whiteTime = 1800; // 30 minutes in seconds
-                blackTime = 1800; // 30 minutes in seconds
-                updateTimerLabels();
-                // Update the GUI
+        startGameItem.addActionListener(e -> {
+            // Stop any running timers
+            whiteTimer.stop();
+            blackTimer.stop();
+
+            if (currentPlayer.getColor() == PlayerColor.BLACK) {
+                flipBoard();
+            }
+
+            // Reset the board and current player
+            board.initializePieces();
+            currentPlayer = new Player(PlayerColor.WHITE);
+
+
+            // Reset the game logic
+            logic = new MoveHandler(board);
+            //flip board if black
+
+            // Reset the timers
+            whiteTime = 1800; // 30 minutes in seconds
+            blackTime = 1800; // 30 minutes in seconds
+            updateTimerLabels();
+
+            // Clear the move list
+            moveList.setText("");
+
+            // Reset the status label
+            statusLabel.setText("");
+
+            // Update the GUI
+            updateChessboard(board);
+        });
+
+        saveGameItem.addActionListener(e -> {
+            // Save the game state to a file
+            chessgame.saveGame("savegame4.txt"); // Use the Chessgame instance to call saveGame
+        });
+
+        loadGameItem.addActionListener(e -> {
+            // Open a file chooser
+            JFileChooser fileChooser = new JFileChooser();
+            int returnValue = fileChooser.showOpenDialog(null);
+
+            // If a file was selected, load the game state from that file
+            if (returnValue == JFileChooser.APPROVE_OPTION) {
+                File selectedFile = fileChooser.getSelectedFile();
+                chessgame.loadGame(selectedFile.getPath());
                 updateChessboard(board);
-            }
-        });
-
-        saveGameItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Save the game state to a file
-                chessgame.saveGame("savegame3.txt"); // Use the Chessgame instance to call saveGame
-            }
-        });
-
-        loadGameItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Open a file chooser
-                JFileChooser fileChooser = new JFileChooser();
-                int returnValue = fileChooser.showOpenDialog(null);
-
-                // If a file was selected, load the game state from that file
-                if (returnValue == JFileChooser.APPROVE_OPTION) {
-                    File selectedFile = fileChooser.getSelectedFile();
-                    chessgame.loadGame(selectedFile.getPath());
-                    updateChessboard(board);
-                }
             }
         });
 

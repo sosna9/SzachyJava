@@ -12,7 +12,7 @@ public class MoveHandler {
     private SelectedSquare selectedSquare = null;
     private GuiSquare[][] guiBoard;
     private List<String> moveStrings = new ArrayList<>(); // List to store the move strings
-    public static PlayerColor turn = PlayerColor.WHITE;
+    public static PlayerColor turn;
 
 
     public GuiSquare getSquare(int x, int y){
@@ -20,6 +20,7 @@ public class MoveHandler {
     }
 
     public MoveHandler(Board board) {
+        turn = PlayerColor.WHITE;
         this.board = board;
         initializeGuiBoard();
     }
@@ -75,6 +76,11 @@ public class MoveHandler {
             if (piece.isValidMove(selectedSquare.row, selectedSquare.col, row, col, board)
             && !piece.wouldThisMovePutKingInCheck(selectedSquare.row, selectedSquare.col, row, col, board)) {
                 executeMove(selectedSquare.row, selectedSquare.col, row, col);
+                // Check if the piece is a pawn and has reached the opposite end of the board
+                if (piece instanceof Pawn && (row == 0 || row == 7)) {
+                    // Replace the pawn with a queen of the same color
+                    board.setPiece(row, col, new Queen(piece.getColor()));
+                }
                 // Check if the piece is a pawn and has moved two squares forward
                 if (piece instanceof Pawn && Math.abs(selectedSquare.row - row) == 2) {
                     piece.setHasMovedTwo(true);
@@ -84,9 +90,17 @@ public class MoveHandler {
             }
             selectedSquare = null; //unselect Square
         }
+        // update the guiBoard
+        for (int i = 0; i < 8; i++) {
+            for (int j = 0; j < 8; j++) {
+                guiBoard[i][j].piece = board.getPiece(i, j);
+            }
+        }
+
     }
 
     private void executeMove(int startX, int startY, int endX, int endY) {
+
         Piece startPiece = board.getPiece(startX, startY);
         Piece capturedPiece = board.getPiece(endX, endY);
 
@@ -96,7 +110,7 @@ public class MoveHandler {
 
         handleEnPassant(startX, startY, endX, endY);
         handleCastling(startX, startY, endX, endY);
-        handlePawnPromotion(startX, startY, endX, endY);
+
 
         board.setPiece(endX, endY, startPiece);
         if (startPiece != null) {
@@ -125,7 +139,6 @@ public class MoveHandler {
                 }
             }
         }
-
         moveStrings.add(moveString); // Add the move string to the list
     }
 
@@ -145,14 +158,6 @@ public class MoveHandler {
             int rookEndCol = (endY > startY) ? 5 : 3;
             board.setPiece(endX, rookEndCol, board.getPiece(endX, rookStartCol));
             board.setPiece(endX, rookStartCol, null);
-        }
-    }
-
-    //when a pawn reaches the end of the board, promote it to a queen
-    private void handlePawnPromotion(int startX, int startY, int endX, int endY) {
-        Piece piece = board.getPiece(startX, startY);
-        if (piece instanceof Pawn && (endX == 0 || endX == 7)) {
-            board.setPiece(endX, endY, new Queen(piece.getColor()));
         }
     }
 
