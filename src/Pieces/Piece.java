@@ -1,7 +1,6 @@
 package Pieces;
 import GameElems.Board;
 
-import java.util.ArrayList;
 import java.util.List;
 
 abstract public class Piece {
