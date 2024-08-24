@@ -27,7 +27,7 @@ public:
                     Piece* piece = board.getPiece(i, j);
                     if (piece != nullptr) {
                         // Save the piece's color, type, and position
-                        writer << static_cast<int>(piece->getColor()) << " " << piece->getPieceType() << " " << i << " " << j << std::endl;
+                        writer << static_cast<int>(piece->getColor()) << " " << piece->getPieceSymbol() << " " << i << " " << j << std::endl;
                     }
                 }
             }

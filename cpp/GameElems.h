@@ -1,7 +1,7 @@
 #ifndef GAMEELEMS_H
 #define GAMEELEMS_H
 
-#include "Pieces.h"
+#include "Piece.h"
 #include <vector>
 
 class Board {
