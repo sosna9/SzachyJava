@@ -3,12 +3,9 @@
 
 Piece::Piece(PlayerColor color, char symbol) : color(color), symbol(symbol), hasMoved(false) {}
 
-bool Piece::hasMoved() const {
-    return hasMoved;
-}
 
 bool Piece::getHasMovedTwo() const {
-    return false;
+    return hasMoved;
 }
 
 void Piece::setHasMoved(bool hasMoved) {
@@ -23,7 +20,7 @@ PlayerColor Piece::getColor() const {
     return color;
 }
 
-bool Piece::wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board& board) const {
+bool Piece::wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board& board) {
     // Create a copy of the board
     Board copiedBoard;
     for (int x = 0; x < 8; ++x) {

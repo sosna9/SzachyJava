@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
 #include "ChessGUI.h"
 

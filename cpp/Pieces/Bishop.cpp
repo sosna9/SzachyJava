@@ -3,7 +3,7 @@
 
 Bishop::Bishop(PlayerColor color) : Piece(color, 'B') {}
 
-bool Bishop::isValidMove(int startX, int startY, int endX, int endY, const Board& board) const {
+bool Bishop::isValidMove(int startX, int startY, int endX, int endY, Board& board) const {
     if (abs(endX - startX) == abs(endY - startY)) {
         int xDirection = (endX > startX) ? 1 : -1;
         int yDirection = (endY > startY) ? 1 : -1;

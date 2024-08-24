@@ -1,7 +1,7 @@
 #ifndef KNIGHT_H
 #define KNIGHT_H
 
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
 #include <vector>
 

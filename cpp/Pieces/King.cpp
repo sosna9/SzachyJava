@@ -1,5 +1,6 @@
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
+#include "Rook.h" // Include the Rook header file
 #include <vector>
 
 class King : public Piece {
@@ -38,8 +39,8 @@ public:
 
         bool isCastlingMove = !hasMoved && dx == 0 && dy == 2 && board.getPiece(startX, startY + dy / 2) == nullptr && board.getPiece(startX, startY + dy) == nullptr;
         if (isCastlingMove) {
-            Piece* rook = board.getPiece(startX, startY + dy / 2 * 3);
-            isCastlingMove = dynamic_cast<Rook*>(rook) && !rook->hasMoved();
+            Piece* piece = board.getPiece(startX, startY + dy / 2 * 3);
+            isCastlingMove =  && !rook->hasMoved();
         }
 
         return (isAdjacentMove || isCastlingMove) && !isUnderAttack;

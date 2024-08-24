@@ -1,7 +1,7 @@
 #ifndef BISHOP_H
 #define BISHOP_H
 
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
 #include <vector>
 

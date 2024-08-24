@@ -1,7 +1,7 @@
 #ifndef QUEEN_H
 #define QUEEN_H
 
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
 #include <vector>
 

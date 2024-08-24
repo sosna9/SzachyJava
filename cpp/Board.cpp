@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "Pieces.h"
+#include "Piece.h"
 #include "King.h"
 #include "Queen.h"
 #include "Bishop.h"

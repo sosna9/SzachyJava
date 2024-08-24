@@ -12,7 +12,7 @@ private:
 
 public:
     Pawn(PlayerColor color);
-    bool getHasMovedTwo() override;
+    bool getHasMovedTwo() ;
     void setHasMovedTwo(bool hasMovedTwo);
     bool isValidMove(int startX, int startY, int endX, int endY, Board& board) override;
     bool threatensPosition(int x, int y, Board& board) override;

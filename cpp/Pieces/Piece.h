@@ -11,29 +11,18 @@ protected:
     PlayerColor color;
     char symbol;
     bool hasMoved;
+    bool hasMovedTwo;
 
 public:
     Piece(PlayerColor color, char symbol);
-    virtual ~Piece() = default;
 
-    virtual bool hasMoved(); 
-    virtual bool getHasMovedTwo();
-    virtual void setHasMoved(bool hasMoved);
-    char getPieceSymbol();
-    PlayerColor getColor();
-
-    virtual std::vector<std::vector<int>> generatePossibleMoves(int startX, int startY, Board& board) = 0;
+    PlayerColor getColor() const;
+    char getPieceSymbol() const;
+    bool wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board& board);
+    void setHasMoved(bool hasMoved);
     virtual bool isValidMove(int startX, int startY, int endX, int endY, Board& board) = 0;
     virtual bool threatensPosition(int x, int y, Board& board) = 0;
-    bool wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board& board);
+    virtual std::vector<std::vector<int>> generatePossibleMoves(int startX, int startY, Board& board) = 0;
 };
 
-class Pawn : public Piece {
-    // Pawn-specific members and methods
-};
-
-class King : public Piece {
-    // King-specific members and methods
-};
-
-#endif // PIECES_H
+#endif // PIECE_H

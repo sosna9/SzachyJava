@@ -1,7 +1,7 @@
 #ifndef KING_H
 #define KING_H
 
-#include "Pieces.h"
+#include "Piece.h"
 #include "GameElems.h"
 #include <vector>
 
