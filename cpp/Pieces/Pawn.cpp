@@ -39,7 +39,7 @@ public:
             // Check for en passant
             else if ((getColor() == PlayerColor::WHITE && startX == 4) || (getColor() == PlayerColor::BLACK && startX == 3)) {
                 Piece* adjacentPiece = board.getPiece(startX, startY + (endY - startY));
-                return adjacentPiece != nullptr && dynamic_cast<Pawn*>(adjacentPiece) && adjacentPiece->getColor() != getColor() && adjacentPiece->hasMovedTwo;
+                return adjacentPiece != nullptr && dynamic_cast<Pawn*>(adjacentPiece) && adjacentPiece->getColor() != getColor() && adjacentPiece->getHasMovedTwo();
             }
         }
         return false;

@@ -18,6 +18,8 @@ public:
 
     PlayerColor getColor() const;
     char getPieceSymbol() const;
+    bool getHasMoved() const;
+    bool getHasMovedTwo() const;
     bool wouldThisMovePutKingInCheck(int startX, int startY, int endX, int endY, Board& board);
     void setHasMoved(bool hasMoved);
     virtual bool isValidMove(int startX, int startY, int endX, int endY, Board& board) = 0;

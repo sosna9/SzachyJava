@@ -14,10 +14,6 @@ public:
         return hasMoved;
     }
 
-    void setHasMoved(bool hasMoved) override {
-        this->hasMoved = hasMoved;
-    }
-
     bool isInCheck(int x, int y, Board& board) {
         for (int i = 0; i < 8; ++i) {
             for (int j = 0; j < 8; ++j) {
@@ -40,7 +36,7 @@ public:
         bool isCastlingMove = !hasMoved && dx == 0 && dy == 2 && board.getPiece(startX, startY + dy / 2) == nullptr && board.getPiece(startX, startY + dy) == nullptr;
         if (isCastlingMove) {
             Piece* piece = board.getPiece(startX, startY + dy / 2 * 3);
-            isCastlingMove =  && !rook->hasMoved();
+            isCastlingMove = (piece->getPieceSymbol() == 'R') && !(piece->getHasMoved());
         }
 
         return (isAdjacentMove || isCastlingMove) && !isUnderAttack;

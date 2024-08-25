@@ -12,8 +12,7 @@ private:
 public:
     King(PlayerColor color);
 
-    bool hasMoved() override;
-    void setHasMoved(bool hasMoved) override;
+
     bool isInCheck(int x, int y, Board& board);
     bool isValidMove(int startX, int startY, int endX, int endY, Board& board) override;
     bool threatensPosition(int x, int y, Board& board) override;

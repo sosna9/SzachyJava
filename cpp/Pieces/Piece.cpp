@@ -3,14 +3,22 @@
 
 Piece::Piece(PlayerColor color, char symbol) : color(color), symbol(symbol), hasMoved(false) {}
 
+void Piece::setHasMoved(bool hasMoved) {
+    this->hasMoved = hasMoved;
+}
+
+bool Piece::getHasMoved() const {
+    return hasMoved;
+}
+void Piece::setHasMoved(bool hasMoved) {
+    this->hasMoved = hasMoved;
+}
 
 bool Piece::getHasMovedTwo() const {
     return hasMoved;
 }
 
-void Piece::setHasMoved(bool hasMoved) {
-    this->hasMoved = hasMoved;
-}
+
 
 char Piece::getPieceSymbol() const {
     return symbol;
